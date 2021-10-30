@@ -1,7 +1,10 @@
 package com.fundamentos.springboot.Fundamentos.configuration;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,6 +28,16 @@ public class GeneralConfiguration {
 	@Bean
 	public MyBeanWithProperties function() {
 		return new MyBeanWithPropertiesImplement(name, apellido);
+	}
+	
+	@Bean
+	public DataSource dataSource() {
+		DataSourceBuilder dataSourcebuilder = DataSourceBuilder.create();
+		dataSourcebuilder.driverClassName("org.h2.Driver");
+		dataSourcebuilder.url("jdbc:h2:mem:testdb");
+		dataSourcebuilder.username("sa");
+		dataSourcebuilder.password("");
+		return dataSourcebuilder.build();
 	}
 	
 }
