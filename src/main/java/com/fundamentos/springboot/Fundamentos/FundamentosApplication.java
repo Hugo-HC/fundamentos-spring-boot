@@ -19,6 +19,7 @@ import com.fundamentos.springboot.Fundamentos.component.ComponentDependency;
 import com.fundamentos.springboot.Fundamentos.entity.User;
 import com.fundamentos.springboot.Fundamentos.pojo.UserPojo;
 import com.fundamentos.springboot.Fundamentos.repository.UserRepository;
+import com.fundamentos.springboot.Fundamentos.service.UserService;
 
 @SpringBootApplication
 public class FundamentosApplication implements CommandLineRunner{
@@ -36,16 +37,19 @@ public class FundamentosApplication implements CommandLineRunner{
 	private UserPojo userPojo;
 	
 	private UserRepository userRepository;
+	
+	private UserService userService;
 
 	// Inyeccion de dependencia puede ir o no el autowired
 	// @Qualifier Toma el nombre de la clase pero con minuscula cuando tiene mas de una implementacion
-	public FundamentosApplication(@Qualifier("componentTwoImplement") ComponentDependency componentDependency, MyBean myBean, MyBeanWithDependency myBeanWithDependency, MyBeanWithProperties myBeanWithProperties, UserPojo userPojo, UserRepository userRepository) {
+	public FundamentosApplication(@Qualifier("componentTwoImplement") ComponentDependency componentDependency, MyBean myBean, MyBeanWithDependency myBeanWithDependency, MyBeanWithProperties myBeanWithProperties, UserPojo userPojo, UserRepository userRepository, UserService userService) {
 		this.componentDependency = componentDependency;
 		this.myBean = myBean;
 		this.myBeanWithDependency = myBeanWithDependency;
 		this.myBeanWithProperties = myBeanWithProperties;
 		this.userPojo = userPojo;
 		this.userRepository = userRepository;
+		this.userService = userService;
 	}
 	
 	public static void main(String[] args) {
@@ -57,6 +61,8 @@ public class FundamentosApplication implements CommandLineRunner{
 		// ejemplosAnteriores();
 		saveUserInDataBase();
 		getInformationJpqlFromUser();
+		
+		saveWithErrorTransactional();
 	}
 	
 	private void getInformationJpqlFromUser() {
@@ -97,9 +103,29 @@ public class FundamentosApplication implements CommandLineRunner{
 			.forEach(user -> LOGGER.info("TODOS LOS USUARIOS ENCONTRADOS CON LIKE Y ORDENADOS :" + user));
 		*/
 		userRepository.findByNameContainingOrderByIdDesc("Hugo1")
-		.stream()
-		.forEach(user -> LOGGER.info("TODOS LOS USUARIOS ENCONTRADOS CON LIKE Y ORDENADOS :" + user));
+			.stream()
+			.forEach(user -> LOGGER.info("TODOS LOS USUARIOS ENCONTRADOS CON LIKE Y ORDENADOS :" + user));
 		
+		/*
+		LOGGER.info("EL usuario a partir del parameter es: "  + userRepository.getAllByBirthDateAndEmail(LocalDate.of(2021, 10, 30), "hugo@gmail.com")
+			.orElseThrow(()-> new RuntimeException("No se encontro al usuario a partir del named parameter")));
+		*/
+		
+	}
+	
+	private void saveWithErrorTransactional() {
+		User test1 = new User("TEST TRANSACTIONAL 1", "TESTTRANSACTIONAL1@gmail.com", LocalDate.now());
+		User test2 = new User("TEST TRANSACTIONAL 2", "TESTTRANSACTIONAL2@gmail.com", LocalDate.now());
+		User test3 = new User("TEST TRANSACTIONAL 3", "TESTTRANSACTIONAL3@gmail.com", LocalDate.now());
+		User test4 = new User("TEST TRANSACTIONAL 4", "TESTTRANSACTIONAL4@gmail.com", LocalDate.now());
+		
+		List<User> users = Arrays.asList(test1, test2, test3, test4);
+		
+		userService.saveTransactional(users);
+		
+		userService.getAllUsers()
+			.stream()
+			.forEach(user -> LOGGER.info("ESTE ES EL USUARIO DEL METODO TRANSACCIONAL" + user));
 	}
 	
 	private void saveUserInDataBase(){
