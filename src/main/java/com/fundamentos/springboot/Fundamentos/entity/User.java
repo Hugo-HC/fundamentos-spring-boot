@@ -40,7 +40,6 @@ public class User {
 	}
 
 	public User(String name, String email, LocalDate birthDate) {
-		super();
 		this.name = name;
 		this.email = email;
 		this.birthDate = birthDate;
