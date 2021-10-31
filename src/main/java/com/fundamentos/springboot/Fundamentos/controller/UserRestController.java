@@ -2,6 +2,7 @@ package com.fundamentos.springboot.Fundamentos.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fundamentos.springboot.Fundamentos.caseuse.CreateUser;
@@ -18,6 +20,7 @@ import com.fundamentos.springboot.Fundamentos.caseuse.DeleteUser;
 import com.fundamentos.springboot.Fundamentos.caseuse.GetUser;
 import com.fundamentos.springboot.Fundamentos.caseuse.UpdateUser;
 import com.fundamentos.springboot.Fundamentos.entity.User;
+import com.fundamentos.springboot.Fundamentos.repository.UserRepository;
 
 @RestController
 @RequestMapping("/api/users")
@@ -28,12 +31,14 @@ public class UserRestController {
 	private CreateUser createUser;
 	private DeleteUser deleteUser;
 	private UpdateUser updateUser;
+	private UserRepository userRepository;
 	
-	public UserRestController(GetUser getUser, CreateUser createUser, DeleteUser deleteUser, UpdateUser updateUser) {
+	public UserRestController(GetUser getUser, CreateUser createUser, DeleteUser deleteUser, UpdateUser updateUser,  UserRepository userRepository) {
 		this.getUser = getUser;
 		this.createUser = createUser;
 		this.deleteUser = deleteUser;
 		this.updateUser = updateUser;
+		this.userRepository = userRepository;
 	}
 	
 	@GetMapping("/")
@@ -55,5 +60,10 @@ public class UserRestController {
 	@PutMapping("/{id}")
 	ResponseEntity<User> replaceUser(@RequestBody User newUser, @PathVariable Long id){
 		return new ResponseEntity(updateUser.update(newUser, id), HttpStatus.OK);
+	}
+	
+	@GetMapping("/pageable")
+	List<User> getuserPageable(@RequestParam int page, @RequestParam int size){
+		return userRepository.findAll(PageRequest.of(page, size)).getContent();
 	}
 }
