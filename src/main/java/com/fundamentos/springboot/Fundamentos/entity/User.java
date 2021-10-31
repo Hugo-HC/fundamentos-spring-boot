@@ -12,6 +12,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
@@ -31,7 +33,8 @@ public class User {
 	private LocalDate birthDate;
 	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JsonManagedReference
+	//@JsonManagedReference
+	@JsonIgnore
 	private List<Post> post = new ArrayList<>();
 
 	public User() {
@@ -41,6 +44,10 @@ public class User {
 		this.name = name;
 		this.email = email;
 		this.birthDate = birthDate;
+	}
+
+	public User(Long id) {
+		this.id = id;
 	}
 
 	public Long getId() {
